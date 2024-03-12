@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { addTodo, removeTodo } from "../features/Todo/todoSlice";
-import { UseSelector, useSelector } from "react-redux/es/hooks/useSelector";
+import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useDispatch } from "react-redux";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 function Todo() {
   const [input, setInput] = useState("");
@@ -60,8 +60,8 @@ function Todo() {
             >
               <p>{todo.text}</p>
               <button type="submit" className="btn btn-danger mb-3 align-self-end"
-              onClick={(event)=>{
-                event.target.parentNode.remove()
+              onClick={()=>{
+                dispatch(removeTodo(todo))
               }}
               >
                 Remove
