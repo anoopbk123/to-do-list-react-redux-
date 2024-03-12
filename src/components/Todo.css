@@ -1,0 +1,5 @@
+.selected{
+    outline: 4px solid rgb(43, 190, 239);
+    transform: scale(1.02);
+    transition: transform 0.5s;
+}

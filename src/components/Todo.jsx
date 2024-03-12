@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import { addTodo, removeTodo } from "../features/Todo/todoSlice";
+import './Todo.css'
+import { addTodo, removeTodo, clearTodo, editTodo } from "../features/Todo/todoSlice";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 
 function Todo() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState({
+    id: false,
+    text: "",
+  });
   const dispatch = useDispatch();
 
   const todos = useSelector((state) => state.todos);
@@ -13,9 +17,21 @@ function Todo() {
   // console.log(todos, "sdsdsd");
   const handleTodoSubmit = (e) => {
     e.preventDefault();
-    if (input.length > 0) {
-      dispatch(addTodo(input));
-      setInput("");
+    if (input.text.length > 0) {
+      if(input.id){
+        dispatch(editTodo(input))
+        setInput({
+          id: false,
+          text: "",
+        });
+      }
+      else{
+        dispatch(addTodo(input));
+      setInput({
+        id: false,
+        text: "",
+      });
+      }
     } else {
       toast.error("Enter the Activity first!");
     }
@@ -29,17 +45,34 @@ function Todo() {
           <div className="col-auto">
             <input
               type="text"
-              className="form-control"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              className="form-control input"
+              value={input.text}
+              onChange={(e) =>
+                setInput((previousState) => {
+                  return {
+                    ...previousState,
+                    text: e.target.value,
+                  };
+                })
+              }
               id="todoInput"
-              placeholder="Todo list"
+              placeholder="Enter activity"
             />
           </div>
           <div className="col-auto">
-            <button type="submit" className="btn btn-primary mb-3">
-              Add to Todo
-            </button>
+            {input.id ? (
+              <>
+                <button type="submit" className="btn btn-warning mb-3">
+                  Edit
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="submit" className="btn btn-primary mb-3">
+                  Add to Todo
+                </button>
+              </>
+            )}
           </div>
         </form>
       </div>
@@ -52,25 +85,47 @@ function Todo() {
             <p>No activities to show.</p>
           </div>
         ) : (
-          todos.map((todo, index) => (
-            <div
-              key={todo.id}
-              className="col overflow-auto g-3 w-50 m-auto p-3 justify-content-between my-2 d-flex "
-              style={{ backgroundColor: "darkblue", color: "white" }}
-            >
-              <p>{todo.text}</p>
-              <button type="submit" className="btn btn-danger mb-3 align-self-end"
-              onClick={()=>{
-                dispatch(removeTodo(todo))
-              }}
+          <div style={{ maxWidth: "600px" }} className="container">
+            {todos.map((todo) => (
+              <div
+                key={todo.id}
+                className={`rounded todo-item-container col container overflow-auto g-3  m-auto p-3 justify-content-between my-2 d-flex ${input.id ===todo.id?'selected':''}`}
+                style={{ backgroundColor: "darkblue", color: "white" }}
               >
-                Remove
+                <p>{todo.text}</p>
+                <div>
+                  <button
+                    type="submit"
+                    className="btn btn-warning mx-3 mb-3 align-self-end"
+                    onClick={() => {
+                      setInput({ id: todo.id, text: todo.text });
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-danger mb-3 align-self-end"
+                    onClick={() => {
+                      dispatch(removeTodo(todo));
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+            <div className="text-center">
+              <button
+                className="m-3 btn btn-danger"
+                onClick={() => {
+                  dispatch(clearTodo());
+                }}
+              >
+                Clear
               </button>
-              {/* <div className="">
-                <i class="bi bi-x-square"></i>
-              </div> */}
             </div>
-          ))
+          </div>
         )}
       </div>
     </>
